@@ -6,7 +6,7 @@ pub mod jupiter_override {
     use super::Side;
     use super::SplitLeg;
     use anchor_lang::prelude::*;
-    use anchor_lang::{AnchorSerialize, InstructionData};
+    use anchor_lang::{AnchorSerialize, Discriminator, InstructionData};
     use std::io::Write;
 
     #[derive(AnchorSerialize)]
@@ -66,10 +66,14 @@ pub mod jupiter_override {
         pub platform_fee_bps: u8,
     }
 
+    impl Discriminator for Route {
+        // SHA256 "global:route"
+        const DISCRIMINATOR: [u8; 8] = [229, 23, 203, 151, 122, 227, 173, 42];
+    }
+
     impl InstructionData for Route {
         fn data(&self) -> Vec<u8> {
-            // SHA256 "global:route"
-            let mut d = [229, 23, 203, 151, 122, 227, 173, 42].to_vec();
+            let mut d = Self::DISCRIMINATOR.to_vec();
             d.append(&mut self.try_to_vec().unwrap());
             d
         }
